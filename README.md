@@ -2,6 +2,13 @@
 
 一本讲 DeepAgent 实战的中文书。全书六章只做一个程序：从十行代码起步，一章加一样本事，最后长成一个命令行智能体 **minihermes**，它是 Hermes 的教学替身。
 
+## 下载
+
+- [**《DeepAgent实战：自己动手写一个Hermes》PDF**](DeepAgent实战-自己动手写一个Hermes.pdf)：带封面、目录和页码，适合通读、打印
+- [**同内容的 Word 版**](DeepAgent实战-自己动手写一个Hermes.docx)：想改排版、加批注或自己导出别的格式时用
+
+两个文件的内容与下面六章正文一致。正文改了要重新出版式，照 `chapterNN/README.md` 重新生成一遍即可。
+
 ## 目录
 
 | 章 | 标题 | 这一章做什么 |
@@ -58,6 +65,8 @@ uv run python chapter01/minihermes.py
 
 ```text
 chapterNN/            每章：README.md（正文）+ minihermes.py（该章完整代码）+ images/（运行截图）
+DeepAgent实战-…pdf     整本书的 PDF（封面 + 目录 + 六章）
+DeepAgent实战-…docx    整本书的 Word 版
 .env / .env.example   模型 Key（.env 不进仓库）
 pyproject.toml        依赖声明
 uv.lock               版本锁
