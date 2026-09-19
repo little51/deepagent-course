@@ -1,23 +1,17 @@
 [project]
 name = "deepagent-course"
 version = "0.1.0"
-description = "《DeepAgent 实战》配套代码：Windows + git bash + uv + DeepSeek"
+description = "《DeepAgent实战：自己动手写一个Hermes》配套代码：Windows + git bash + uv + DeepSeek"
 requires-python = ">=3.11"
 dependencies = [
     "langchain-openai>=1.6.2",       # 调 DeepSeek（兼容 OpenAI 接口）
     "python-dotenv>=1.2.3",          # 读 .env
     "deepagents[quickjs]>=0.7.15",   # 第 2 章起会用；quickjs 是第 6 章的执行沙盒
+    "playwright>=1.63.0",            # 第 3 章：驱动浏览器搜索
+    "trafilatura>=2.2.0",            # 第 3 章：抽网页正文
 ]
 
-# 只有开发本书时才需要（common/ 下的冒烟测试与探针）：uv sync --group dev
-[dependency-groups]
-dev = [
-    "rich>=15.0.0",
-    "ddgs>=9.16.0",
-    "trafilatura>=2.2.0",
-    "playwright>=1.63.0",
-]
-
+# 国内建议加上，走清华镜像
 [[tool.uv.index]]
 name = "tuna"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"

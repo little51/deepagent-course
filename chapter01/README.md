@@ -152,6 +152,8 @@ dependencies = [
     "langchain-openai>=1.6.2",       # 和模型说话（DeepSeek 兼容 OpenAI 接口）
     "python-dotenv>=1.2.3",          # 读 .env 里的 Key
     "deepagents[quickjs]>=0.7.15",   # 第 2 章的主角；quickjs 是第 6 章的沙盒
+    "playwright>=1.63.0",            # 第 3 章：驱动浏览器搜索
+    "trafilatura>=2.2.0",            # 第 3 章：把网页正文抽出来
 ]
 
 # 国内建议加上，走清华镜像
@@ -160,6 +162,8 @@ name = "tuna"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
 ```
+
+清单里后两个包（`playwright`、`trafilatura`）是第 3 章才用到的，这里一并写上。原因很实在：全书的依赖一次装齐，读到后面就不用回头补。你当然也可以只写前三个，到第 3 章再 `uv add playwright trafilatura`，结果一样，只是多敲一次命令。
 
 然后装依赖：
 

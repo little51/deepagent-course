@@ -140,17 +140,46 @@ minihermes > 你好！我是一个 AI 助手，可以帮你查资料、读代码
 
 它说自己是"一个 AI 助手"，能干的事情一口气报了一串：查资料、读代码、写文件、跑搜索。这不是我们告诉它的，是它从工具清单里猜出来的。
 
-为了确认这一点，我写了个小探针，把模型实际收到的系统提示词打出来：
+为了确认这一点，我写了个小探针，把模型实际收到的系统提示词打出来。探针不复杂，你可以存成项目根目录的 `spy.py` 跑一次，看完就删：
+
+```python
+# spy.py —— 看一眼模型到底收到了什么提示词，看完就可以删掉
+from dotenv import load_dotenv; load_dotenv()
+from langchain_core.messages import HumanMessage
+from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import InMemorySaver
+from deepagents import create_deep_agent
+
+
+class Spy(ChatOpenAI):                    # 继承模型类，在真发出去之前偷看一眼
+    def _log(self, messages):
+        for m in messages:
+            if getattr(m, "type", "") == "system":
+                print(f"=== 系统提示词：{len(m.content)} 字符 ===")
+
+    def _generate(self, messages, *a, **kw):        # 非流式走这条
+        self._log(messages)
+        return super()._generate(messages, *a, **kw)
+
+    def _stream(self, messages, *a, **kw):          # 流式走这条
+        self._log(messages)
+        yield from super()._stream(messages, *a, **kw)
+
+
+agent = create_deep_agent(model=Spy(model="deepseek-v4-flash"), checkpointer=InMemorySaver())
+agent.invoke({"messages": [HumanMessage(content="你好")]},
+             config={"configurable": {"thread_id": "spy"}})      # 挂 checkpointer 就得给 thread_id
+```
+
+两个方法都要覆写：我们平时用 `agent.stream(...)` 驱动，模型那头走的是流式那条路，只改 `_generate` 什么也看不到。最后那行 `thread_id` 也别省——我第一版忘了写，`invoke` 直接抛 `ValueError: Checkpointer requires ... thread_id`。跑出来是这样：
 
 ```text
-=== 模型实际收到的系统提示词 ===
-
-[总长度 0 字符]
+=== 系统提示词：0 字符 ===
 ```
 
 **空的。** 一个字的身份说明都没有。
 
-这里还有个更值得记的细节：我换过一版模型做同样的实验，那一版直接自称"我是 Claude Code，一个由 Anthropic 打造的 AI 编程助手"。**同一个程序、同一份空提示词，两个模型给自己编了两个身份。** 一个模型对自己是谁这件事，就是这么不可靠。
+这里还有个更值得记的细节：同一个程序、同一份空提示词，**它每次给自己编的名号都不一样**。我这边见过"我是一个 AI 助手"，也见过它张口就说"我是 Claude，由 Anthropic 开发的 AI 助手"。注意，喂进去的明明是 DeepSeek。一个模型对自己是谁这件事，就是这么不可靠。
 
 再让它干点活：
 

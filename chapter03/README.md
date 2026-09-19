@@ -50,7 +50,7 @@ ddgs.exceptions.TimeoutException: error sending request for url (https://html.du
 
 超时。在国内连不上。
 
-好在第 1 章装依赖时我们已经把 `playwright` 装上了（浏览器也下好了）。既然手上有浏览器，就让它去开必应搜——一样免费，一样不要 Key，还顺便演示了"工具是自己写的"这件事。搜回来的结果再交给 `trafilatura` 抽正文，这两个包都是纯 Python 的。
+好在第 1 章装依赖时我们已经把 `playwright` 装上了（浏览器还没下，3.1 里补）。既然手上有浏览器，就让它去开必应搜——一样免费，一样不要 Key，还顺便演示了"工具是自己写的"这件事。搜回来的结果再交给 `trafilatura` 抽正文，这两个包都是纯 Python 的。
 
 ### 1.4 返回的东西要进上下文
 
@@ -71,12 +71,14 @@ if not html:
 
 ### 1.6 依赖环境
 
-本章新增两个依赖，第 1 章的 `pyproject.toml` 里已经声明过：
+本章不新增依赖：要用到的两个包，第 1 章写 `pyproject.toml` 时就一起声明了，`uv sync` 已经装好。对照一下：
 
 | 依赖 | 干什么用 | 备注 |
 | --- | --- | --- |
-| `playwright` | 驱动 Chromium 搜网页 | 装完还要下浏览器：`uv run playwright install chromium` |
+| `playwright` | 驱动 Chromium 搜网页 | 包在环境里，**浏览器还要单独下一次**：`uv run playwright install chromium`（见 3.1） |
 | `trafilatura` | 从 HTML 里抽正文 | 纯 Python，本地解析 |
+
+只声明了包、没下浏览器的后果很直接：第一次搜索会报找不到浏览器可执行文件。这一步在 3.1 里补。
 
 本机实测的两个前提：DuckDuckGo 在国内连不上（超时），必应可用；Chromium 下到 `%LOCALAPPDATA%\ms-playwright\` 下，之后不再联网。
 

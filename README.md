@@ -4,14 +4,14 @@
 
 ## 目录
 
-| 章 | 标题 | 这一章做什么 | 状态 |
-| --- | --- | --- | --- |
-| 1 | [开发环境搭建与第一个程序](chapter01/README.md) | 装 git bash 与 uv、配 DeepSeek Key、写出第一个十行版本（只会说话） | 已完成 |
-| 2 | [用 DeepAgent 开发最简智能体](chapter02/README.md) | 装上 `create_deep_agent`、给它身份、让文件落到 `workspace/` | 已完成 |
-| 3 | [工具调用：给智能体接入联网能力](chapter03/README.md) | 自己写两个工具（Playwright 搜索 + trafilatura 抽正文），让它查资料写报告 | 已完成 |
-| 4 | [技能（Skills）：把做事的方法固化成能力](chapter04/README.md) | 一份 `SKILL.md` 把"这类活怎么干"固化下来，按需加载；顺带聊自进化 | 已完成 |
-| 5 | [记忆（Memory）：让智能体跨会话记住用户](chapter05/README.md) | 跨进程记住用户，验证方式是"关掉再开一个新进程问它" | 已完成 |
-| 6 | [程序执行与沙盒：让智能体安全地动手干活](chapter06/README.md) | QuickJS 内存执行 + git bash 执行，四道闸门，危险动作先问人 | 已完成 |
+| 章 | 标题 | 这一章做什么 |
+| --- | --- | --- |
+| 1 | [开发环境搭建与第一个程序](chapter01/README.md) | 装 git bash 与 uv、配 DeepSeek Key、写出第一个十行版本（只会说话） |
+| 2 | [用 DeepAgent 开发最简智能体](chapter02/README.md) | 装上 `create_deep_agent`、给它身份、让文件落到 `workspace/` |
+| 3 | [工具调用：给智能体接入联网能力](chapter03/README.md) | 自己写两个工具（Playwright 搜索 + trafilatura 抽正文），让它查资料写报告 |
+| 4 | [技能（Skills）：把做事的方法固化成能力](chapter04/README.md) | 一份 `SKILL.md` 把"这类活怎么干"固化下来，按需加载；顺带聊自进化 |
+| 5 | [记忆（Memory）：让智能体跨会话记住用户](chapter05/README.md) | 跨进程记住用户，验证方式是"关掉再开一个新进程问它" |
+| 6 | [程序执行与沙盒：让智能体安全地动手干活](chapter06/README.md) | QuickJS 内存执行 + git bash 执行，四道闸门，危险动作先问人 |
 
 每一章都有：正文（`chapterNN/README.md`）、该章的完整代码（`chapterNN/minihermes.py`）、**真实运行截图**（`chapterNN/images/`）。clone 下来就能单独跑该章，不必先跑前面几章。
 
@@ -39,6 +39,7 @@
 
 ```bash
 uv sync                            # 还原环境（依赖在 pyproject.toml，版本锁在 uv.lock）
+uv run playwright install chromium # 第 3 章要用浏览器，下一次就够（约 150MB）
 cp .env.example .env               # 填上你自己的 DeepSeek Key
 uv run python chapter01/minihermes.py
 ```
