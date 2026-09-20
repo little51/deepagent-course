@@ -1,26 +1,22 @@
 # DeepAgent实战：自己动手写一个Hermes
 
-一本讲 DeepAgent 实战的中文书。全书六章只做一个程序：从十行代码起步，一章加一样本事，最后长成一个命令行智能体 **minihermes**，它是 Hermes 的教学替身。
+一本讲 DeepAgent 实战的中文电子书。全书六章只做一个程序：从十行代码起步，一章加一样功能，最后形成一个命令行智能体 **minihermes**，它是 Hermes 的教学替身。
 
 ## 下载
 
 - [**《DeepAgent实战：自己动手写一个Hermes》PDF**](DeepAgent实战-自己动手写一个Hermes.pdf)：带封面、目录和页码，适合通读、打印
 - [**同内容的 Word 版**](DeepAgent实战-自己动手写一个Hermes.docx)：想改排版、加批注或自己导出别的格式时用
 
-两个文件的内容与下面六章正文一致。正文改了要重新出版式，照 `chapterNN/README.md` 重新生成一遍即可。
-
 ## 目录
 
 | 章 | 标题 | 这一章做什么 |
 | --- | --- | --- |
-| 1 | [开发环境搭建与第一个程序](chapter01/README.md) | 装 git bash 与 uv、配 DeepSeek Key、写出第一个十行版本（只会说话） |
+| 1 | [开发环境搭建与第一个程序](chapter01/README.md) | 装 git bash 与 uv、配 DeepSeek Key、写出第一个十行版本 |
 | 2 | [用 DeepAgent 开发最简智能体](chapter02/README.md) | 装上 `create_deep_agent`、给它身份、让文件落到 `workspace/` |
-| 3 | [工具调用：给智能体接入联网能力](chapter03/README.md) | 自己写两个工具（Playwright 搜索 + trafilatura 抽正文），让它查资料写报告 |
+| 3 | [工具调用：给智能体接入联网能力](chapter03/README.md) | 自己写两个工具（Playwright 搜索 + trafilatura 抽取正文），让它查资料写报告 |
 | 4 | [技能（Skills）：把做事的方法固化成能力](chapter04/README.md) | 一份 `SKILL.md` 把"这类活怎么干"固化下来，按需加载；顺带聊自进化 |
 | 5 | [记忆（Memory）：让智能体跨会话记住用户](chapter05/README.md) | 跨进程记住用户，验证方式是"关掉再开一个新进程问它" |
-| 6 | [程序执行与沙盒：让智能体安全地动手干活](chapter06/README.md) | QuickJS 内存执行 + git bash 执行，四道闸门，危险动作先问人 |
-
-每一章都有：正文（`chapterNN/README.md`）、该章的完整代码（`chapterNN/minihermes.py`）、**真实运行截图**（`chapterNN/images/`）。clone 下来就能单独跑该章，不必先跑前面几章。
+| 6 | [程序执行与沙盒：让智能体安全地动手干活](chapter06/README.md) | QuickJS 内存执行 + git bash 执行，四道闸门，危险动作先确认 |
 
 ## 每章的结构
 
@@ -38,11 +34,17 @@
 
 ## 环境约定
 
-所有命令都按 **git bash** 给；环境一律用 **uv** 管（不用 Anaconda）；沙盒不用 Docker；全部纯 Python，不引 Node 工具链。
+所有命令都在 **git bash** 里执行；环境一律用 **uv** 管（不用 Anaconda）；沙盒不用 Docker；全部纯 Python，不引 Node.js 工具链。
+
+git bash 怎么打开：**在项目文件夹的空白处点右键，选「Open Git Bash Here」**（中文系统里显示「Git Bash Here」），窗口就直接开在这个目录下。
 
 实测版本：deepagents 0.7.15、langchain 1.4.2、langchain-openai 1.6.2、langgraph 1.2.11、CPython 3.12.11；模型统一用 `deepseek-v4-flash`（`OPENAI_BASE_URL=https://api.deepseek.com`）。
 
+关于uv和git的安装，请参见工具本身的说明文档。
+
 ## 跑起来
+
+把仓库 clone 下来，在项目目录里右键 →「Open Git Bash Here」开一个 git bash 窗口，然后：
 
 ```bash
 uv sync                            # 还原环境（依赖在 pyproject.toml，版本锁在 uv.lock）
@@ -53,13 +55,11 @@ uv run python chapter01/minihermes.py
 
 ## 三个东西别搞混
 
-| | 是什么 | 自带命令行吗 |
+| | 是什么 | 是否自带命令行？ |
 | --- | --- | --- |
-| `deepagents` | 库（Harness）。`create_deep_agent()` 返回一张编译好的 LangGraph 图，得自己驱动 | 没有 |
+| `deepagents` | 库（Harness）。`create_deep_agent()` 返回一张编译好的 LangGraph 图，得自己驱动 | 无 |
 | `deepagents-code`（`dcode`） | 官方基于它做的成品终端智能体 | 有，敲 `dcode` |
 | 本书的 `minihermes` | 自己写的外壳 + 往里头装的 DeepAgent | 有，我们自己写 |
-
-书里那条命令行外壳从第 1 章一直留到最后，每章只是往里面装新东西。
 
 ## 目录结构
 
@@ -80,6 +80,6 @@ workspace/            智能体的工作目录，第 2 章起出现（不进仓�
 - git bash 以登录 shell 启动会重读 profile 重置 `PATH`，手动 activate 常被冲掉，用 `uv run` 更省心。
 - `pip install --upgrade pip` 会把 conda 环境的 pip 弄坏（`No module named 'pip._vendor.rich.markup'`），所以这本书只用 uv。
 - DuckDuckGo 在国内连不上（超时），搜索改走 Playwright。
-- `LocalShellBackend` 在 Windows 走的是 cmd 而不是 bash，所以第 6 章自己写一个 git bash 执行工具。
+- `LocalShellBackend` 在 Windows 调用的是系统自带的那个 shell，不是 git bash，所以第 6 章自己写一个 git bash 执行工具。
 - 不给 `create_deep_agent` 传 `system_prompt` 时，模型收到的系统提示词是空的，它会自己编一个身份（实测：旧模型自称 Claude Code，`deepseek-v4-flash` 则说自己是"一个 AI 助手，可以帮你查资料、读代码、写文件、跑搜索"——都是从工具清单里猜的）。
 - 文件工具看到的 `/` 和 shell 看到的工作目录不是一回事。agent 把绝对路径（`~/deepagent-course/workspace/hello.py` 这种）拼进命令就找不到文件，得在工具说明和系统提示词里点明"用相对路径"。

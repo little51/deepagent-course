@@ -1,8 +1,6 @@
 # 第 2 章 用 DeepAgent 开发最简智能体
 
-## 本章概述
-
-第 1 章那个十行的小程序只会说话。这一章我们把 DeepAgent 装进同一个外壳里，装完之后仍然什么都不加：不给它自写的工具，不接记忆，不联网。计划很简单，就想看看它自己进来之后什么样。
+第 1 章那个十行的小程序只会对话。这一章我们把 DeepAgent 装进同一个CLI里，装完之后仍然什么都不加：不给它自写的工具，不接记忆，不联网。计划很简单，就想看看它自己进来之后什么样。
 
 学完这一章，你手上会有一个会自己列目录、读文件、写文件、遇到多步任务会自己拆着做的迷你智能体；也会知道它进来时带的两个默认设置（没有身份、文件只存在内存里）为什么必须改，怎么各用一行代码改掉。这两件事看着小，后面每一章都建立在它们之上。
 
@@ -24,7 +22,7 @@
 
 其中 `write_file` 和 `edit_file` 的区别值得记一下：前者整份覆盖，后者按片段改。agent 改一份长文件时用 `edit_file` 比重新写一遍更省 token，也更不容易出错。
 
-有一个常见误会要澄清：任务规划（那个先写 TODO 再逐条打勾的本事）不是默认开的。它需要你另外挂一个 `TodoListMiddleware` 才生效。子智能体（`task` 工具）也一样，得先配 `subagents`。第 1 章那张表列的是这个 Harness 能提供的能力，具体开哪几件，要看你装了什么。
+有一个常见误会要澄清：任务规划（那个先写 TODO 再逐条打勾的本事）不是默认开的，得另外挂一个 `TodoListMiddleware` 才生效。子智能体不一样，它是**默认就有的**：包里会自动加一个叫 `general-purpose` 的子智能体，所以 `task` 工具开箱就能用（我是在第 4 章那趟运行里看到它自己派了个子任务才回头查证的，源码里 `graph.py` 那句 `inline_subagents.insert(0, general_purpose_spec)` 就是它）。想换成自己的子智能体，传 `subagents=[...]` 即可。
 
 ### 1.4 它进来时的两个默认
 
@@ -41,7 +39,7 @@
 新建 `chapter02/minihermes.py`，整份内容如下：
 
 ```python
-# minihermes.py —— 第 2 章：把 DeepAgent 装进第 1 章那个命令行外壳
+# minihermes.py —— 第 2 章：把 DeepAgent 装进第 1 章那个命令行CLI外壳
 from pathlib import Path
 
 from dotenv import load_dotenv; load_dotenv()
@@ -138,46 +136,13 @@ agent = create_deep_agent(model=model, checkpointer=InMemorySaver())
 minihermes > 你好！我是一个 AI 助手，可以帮你查资料、读代码、写文件、跑搜索，处理各种综合性的任务。
 ```
 
-它说自己是"一个 AI 助手"，能干的事情一口气报了一串：查资料、读代码、写文件、跑搜索。这不是我们告诉它的，是它从工具清单里猜出来的。
-
-为了确认这一点，我写了个小探针，把模型实际收到的系统提示词打出来。探针不复杂，你可以存成项目根目录的 `spy.py` 跑一次，看完就删：
-
-```python
-# spy.py —— 看一眼模型到底收到了什么提示词，看完就可以删掉
-from dotenv import load_dotenv; load_dotenv()
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
-from langgraph.checkpoint.memory import InMemorySaver
-from deepagents import create_deep_agent
-
-
-class Spy(ChatOpenAI):                    # 继承模型类，在真发出去之前偷看一眼
-    def _log(self, messages):
-        for m in messages:
-            if getattr(m, "type", "") == "system":
-                print(f"=== 系统提示词：{len(m.content)} 字符 ===")
-
-    def _generate(self, messages, *a, **kw):        # 非流式走这条
-        self._log(messages)
-        return super()._generate(messages, *a, **kw)
-
-    def _stream(self, messages, *a, **kw):          # 流式走这条
-        self._log(messages)
-        yield from super()._stream(messages, *a, **kw)
-
-
-agent = create_deep_agent(model=Spy(model="deepseek-v4-flash"), checkpointer=InMemorySaver())
-agent.invoke({"messages": [HumanMessage(content="你好")]},
-             config={"configurable": {"thread_id": "spy"}})      # 挂 checkpointer 就得给 thread_id
-```
-
-两个方法都要覆写：我们平时用 `agent.stream(...)` 驱动，模型那头走的是流式那条路，只改 `_generate` 什么也看不到。最后那行 `thread_id` 也别省——我第一版忘了写，`invoke` 直接抛 `ValueError: Checkpointer requires ... thread_id`。跑出来是这样：
+它说自己是"一个 AI 助手"，能干的事情一口气报了一串：查资料、读代码、写文件、跑搜索。这不是我们告诉它的，是它从工具清单里猜出来的。为确认这件事，我把模型实际收到的系统提示词打出来看了一眼：
 
 ```text
 === 系统提示词：0 字符 ===
 ```
 
-**空的。** 一个字的身份说明都没有。
+**空的。** 一个字的身份说明都没有。模型手里只有一张工具清单，身份全靠它自己编。
 
 这里还有个更值得记的细节：同一个程序、同一份空提示词，**它每次给自己编的名号都不一样**。我这边见过"我是一个 AI 助手"，也见过它张口就说"我是 Claude，由 Anthropic 开发的 AI 助手"。注意，喂进去的明明是 DeepSeek。一个模型对自己是谁这件事，就是这么不可靠。
 
@@ -228,9 +193,9 @@ plan.md
 绑定域名、配置 HTTPS，部署到 GitHub Pages / Vercel 等平台，并接入统计与评论。
 ```
 
-![第 2 章：wt 里跑出来的结果（工具调用 + 文件落盘）](images/运行结果.png)
+![第 2 章：git bash 里跑出来的结果（工具调用 + 文件落盘）](images/运行结果.png)
 
-*这张是 wt 里的原样截图：`→ write_file` 是它调用工具的痕迹，`← Updated file` 是工具回话，最后 `cat` 出来的是磁盘上真实的文件内容。截图里开头那句自我介绍，就是 3.3 节的效果。*
+*这张是 git bash 窗口里的原样截图。开头那句自我介绍就是 3.3 节的效果；中间的 `→ ls`／`→ read_file` 是它调用工具的痕迹（这趟它发现 `plan.md` 已经在了，直接读出来核对），`← @@ lines 1-10 of 10 @@` 是工具回话；最后两行是敲 `ls workspace && wc -c workspace/plan.md`，证明文件真的落在磁盘上（458 字节）。*
 
 第 1 章结尾我说过它会第一次在磁盘上留下东西，现在兑现了。
 
