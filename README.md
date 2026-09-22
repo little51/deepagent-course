@@ -2,6 +2,8 @@
 
 一本讲 DeepAgent 实战的中文电子书。全书六章只做一个程序：从十行代码起步，一章加一样功能，最后形成一个命令行智能体 **minihermes**，它是 Hermes 的教学替身。
 
+<img src="front.png" alt="《DeepAgent实战：自己动手写一个Hermes》封面" width="420">
+
 ## 下载
 
 - [**《DeepAgent实战：自己动手写一个Hermes》PDF**](DeepAgent实战-自己动手写一个Hermes.pdf)：带封面、目录和页码，适合通读、打印
@@ -79,6 +81,7 @@ uv run python chapter01/minihermes.py
 ## 目录结构
 
 ```text
+front.png             封面图（1600×2400，README 和各处宣传共用这一张）
 chapterNN/            每章：README.md（正文）+ minihermes.py（该章完整代码）+ images/（运行截图）
 DeepAgent实战-…pdf     整本书的 PDF（封面 + 目录 + 六章）
 DeepAgent实战-…docx    整本书的 Word 版
